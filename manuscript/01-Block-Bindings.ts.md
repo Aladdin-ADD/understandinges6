@@ -180,7 +180,7 @@ for (var i = 0; i < 10; i++) {
 // i is still accessible here
 console.log(i);                     // 10
 ```
-在其它语言中，默认为块级作用域，上面例子中的变量i应该只能够在for循环内部使用。然而，在js中，因为声明提升，在for循环外仍然可以访问到i。在使用let声明时，与我们本来的预期相同：
+在其它语言中，默认为块级作用域，上面例子中的变量i应该只能够在for循环内部使用。然而，在js中，因为声明提升，在for循环外仍然可以访问到i。在使用let声明时，与我们本来的预期相同：变量i只存在于for循环，在它之外，就不能够访问了:
 
 ```js
 for (let i = 0; i < 10; i++) {
@@ -192,8 +192,52 @@ console.log(i);
 ```
 
 ### 循环中的函数
+由于循环内的var声明的变量能够在外部访问，因此循环中的函数访问这个变量时很容易造成误解：
+```js
+var funcs = [];
+
+for (var i = 0; i < 10; i++) {
+    funcs.push(function() { console.log(i); });
+}
+
+funcs.forEach(function(func) {
+    func();     // outputs the number "10" ten times
+});
+```
+你可能很天真的认为这个函数应该打印出0~9，但实际输出10*10。这是由于i是由循环的每次迭代都可以访问，这意味着循环内部保存的是同一个变量i的引用。因此当循环执行完，i的值变成10，每次执行console.log(i)，就会输出一个10。
+要解决这个问题，开发者通常使用一个立即执行函数（IIFE）在循环内部创建一个变量的拷贝。
+```js
+var funcs = [];
+
+for (var i = 0; i < 10; i++) {
+    funcs.push((function(value) {
+        return function() {
+            console.log(value);
+        }
+    }(i)));
+}
+
+funcs.forEach(function(func) {
+    func();     // outputs 0, then 1, then 2, up to 9
+});
+```
 
 ### 循环中的的let声明
+使用let声明可以简化上面使用IIFE的这种用法。在循环的每次执行中，都会创建一个变量并赋值成上一次的那个值。也就是说，你不用使用IIFE就能达到你所期望的结果：
+
+```js
+var funcs = [];
+
+for (let i = 0; i < 10; i++) {
+    funcs.push(function() {
+        console.log(i);
+    });
+}
+
+funcs.forEach(function(func) {
+    func();     // outputs 0, then 1, then 2, up to 9
+})
+```
 
 ### 循环中的的const声明
 
