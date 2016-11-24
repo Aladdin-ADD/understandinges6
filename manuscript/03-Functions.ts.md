@@ -175,8 +175,32 @@ function pick(object, ...keys) {
 
 ### 剩余参数对arguments对象的影响
 剩余参数是被设计用来替换arguments的。事实上，在ES4就抛弃了arguments，增加了剩余参数，然而ES4并没有正式存在过，这个想法却保留下来，并且在ES6重新被引入。（尽管arguments没有被移除）
-## 增强函数构造器
-支持默认参数和剩余参数
+
+## 增强Function构造函数
+Function构造函数是js中一个不太常用的功能。它的参数是要构造的函数的参数和函数体，并且类型都为string。eg.
+
+```js
+var add = new Function("first", "second", "return first + second");
+
+console.log(add(1, 1));     // 2
+```
+ES6增强了`Function`的功能，它支持默认参数和剩余参数。
+
+```js
+var add = new Function("first", "second = first",
+        "return first + second");
+
+console.log(add(1, 1));     // 2
+console.log(add(1));        // 2
+```
+
+```js
+var pickFirst = new Function("...args", "return args[0]");
+
+console.log(pickFirst(1, 2));   // 1
+```
+默认参数和剩余参数的加入，保证了`Function`与普通的函数声明形式有同等功能。
+
 ## 展开操作符？？？
 ```js
 let values = [-25, -50, -75, -100]
